@@ -25,14 +25,14 @@ class Client(models.Model):
     default='Europe/Moscow')
 
     def __str__(self):
-        return str(self.phone)
+        return f'Code: {self.operator_code}; Tag: {self.tag}'
 
 
 class Message(models.Model):
-    date_created = models.DateTimeField(default=timezone.now)
+    date_created = models.DateTimeField(null=True, blank=True)
     delivery_status = models.CharField(blank=True, max_length=100)
     mailing_id = models.ForeignKey(Mailing, on_delete=models.CASCADE, null=True)
     client_id = models.ForeignKey(Client, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
-        return str(self.id)
+        return f'{self.delivery_status} / Schedule: {str(self.mailing_id.date_start)[5:16]} / Sent at: {str(self.date_created)[5:16] if self.date_created else "not sent"};'
