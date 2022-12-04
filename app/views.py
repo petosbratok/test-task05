@@ -2,17 +2,30 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from datetime import datetime, timedelta
 import pytz
+from rest_framework_swagger.views import get_swagger_view
 
+from .filters import *
 from .models import *
 from .tasks import create_messages_task, send_messages_task
 
+schema_view = get_swagger_view(title='API')
+
+
 class CreateClientAPI(APIView):
-    # Example: http://127.0.0.1:8000/create-client/?phone=799999499998&operator_code=345&tag=super&timezone=GB
+    """Пример: http://127.0.0.1:8000/create-client/?phone=78887776665&operator_code=345&tag=super&timezone=GB
+    """
+    filter_backends = (CreateClientFilter,)
+
     def get(self, request):
         phone = request.GET.get('phone')
         operator_code = request.GET.get('operator_code')
         tag = request.GET.get('tag')
         timezone = request.GET.get('timezone')
+
+        try:
+            int(phone)
+        except:
+            return Response({'Error': 'Phone must be a number'})
 
         if 79999999999 > int(phone) > 70000000000 and phone and operator_code and tag and timezone:
             data = {
@@ -31,11 +44,17 @@ class CreateClientAPI(APIView):
             )
             client.save()
 
+            data['id'] = client.id
+
             return Response(data)
         return Response({'error': 'Not enought data provided'})
 
 class UpdateClientAPI(APIView):
-    # Example http://127.0.0.1:8000/update-client/?id=1&phone=76665554441
+    """
+    Пример: http://127.0.0.1:8000/update-client/?id=1&phone=76665554441
+    """
+    filter_backends = (UpdateClientFilter,)
+
     def get(self, request):
         changed_values = {}
 
@@ -49,9 +68,14 @@ class UpdateClientAPI(APIView):
         tag = request.GET.get('tag')
         timezone = request.GET.get('timezone')
 
-        if 79999999999 > int(phone) > 70000000000:
-            client.phone = int(phone)
-            changed_values['phone'] = int(phone)
+        if phone:
+            try:
+                int(phone)
+            except:
+                return Response({'Error': 'Phone must be a number'})
+            if 79999999999 > int(phone) > 70000000000:
+                client.phone = int(phone)
+                changed_values['phone'] = int(phone)
         if operator_code:
             client.operator_code = operator_code
             changed_values['operator_code'] = operator_code
@@ -70,7 +94,11 @@ class UpdateClientAPI(APIView):
         return Response({'Error': 'Client was found but no properties have been changed'})
 
 class DeleteClientAPI(APIView):
-    # Example http://127.0.0.1:8000/delete-client/?id=2
+    """
+    Пример: http://127.0.0.1:8000/delete-client/?id=8
+    """
+    filter_backends = (DeleteClientFilter,)
+
     def get(self, request):
         id = request.GET.get('id')
 
@@ -84,6 +112,11 @@ class DeleteClientAPI(APIView):
 
 
 class CreateMailingAPI(APIView):
+    """"Пример: 127.0.0.1:8000/create-mailing/?date_start=2022-12-03 12:35:00&text=Крутые товары
+    по скидке&date_end=2022-12-30 10:00:00&filter=444
+    """
+    filter_backends = (CreateMailingFilter,)
+
     def get(self, request):
         date_start = request.GET.get('date_start')
         text = request.GET.get('text')
@@ -149,7 +182,11 @@ class CreateMailingAPI(APIView):
         return Response(data)
 
 class UpdateMailingAPI(APIView):
-    # Example http://127.0.0.1:8000/update-client/?id=1&phone=76665554441
+    """
+    Пример: http://127.0.0.1:8000/update-mailing/?id=86&text=Очень%20крутые%20товары%20дорого
+    """
+    filter_backends = (UpdateMailingFilter,)
+
     def get(self, request):
         changed_values = {}
 
@@ -193,9 +230,15 @@ class UpdateMailingAPI(APIView):
         if len(changed_values) > 0:
             return Response(changed_values)
 
-        return Response({'Error': 'Client was found but no properties have been changed'})
+        return Response({'Error': 'Mailing was found but no properties have been changed'})
 
 class DeleteMailingAPI(APIView):
+    """
+    Пример: http://127.0.0.1:8000/delete-mailing/?id=85
+    """
+    DeleteMailingFilter
+    filter_backends = (DeleteMailingFilter,)
+
     def get(self, request):
         id = request.GET.get('id')
 
@@ -208,6 +251,9 @@ class DeleteMailingAPI(APIView):
         return Response({'Info': f'Mailing with id {id} has been deleted'})
 
 class MailingDataOverall(APIView):
+    """
+    Пример: http://127.0.0.1:8000/mailing-data-overall/
+    """
     def get(self, request):
         mailings = Mailing.objects.all()
         messages = Message.objects.all()
@@ -229,6 +275,11 @@ class MailingDataOverall(APIView):
         return Response(data)
 
 class MailingDataSingle(APIView):
+    """
+    Пример: http://127.0.0.1:8000/mailing-data-single/?id=86
+    """
+    filter_backends = (MailingDataSingleFilter,)
+
     def get(self, request):
         id = request.GET.get('id')
 

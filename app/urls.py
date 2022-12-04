@@ -1,4 +1,5 @@
 from django.urls import path
+from django.conf.urls import url
 from . import views
 from .views import (
     CreateClientAPI,
@@ -14,6 +15,8 @@ from .views import (
 )
 
 urlpatterns = [
+    url(r'^$', views.schema_view),
+
     path('create-client/', CreateClientAPI.as_view(), name='create-client-api'),
     path('update-client/', UpdateClientAPI.as_view(), name='update-client-api'),
     path('delete-client/', DeleteClientAPI.as_view(), name='delete-client-api'),

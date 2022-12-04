@@ -35,4 +35,4 @@ class Message(models.Model):
     client_id = models.ForeignKey(Client, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
-        return f'{self.delivery_status} / Schedule: {str(self.mailing_id.date_start)[5:16]} / Sent at: {str(self.date_created)[5:16] if self.date_created else "not sent"};'
+        return f'{self.delivery_status} / Scheduled at: {str(self.mailing_id.date_start)[5:16]} / Sent at: {str(self.date_created)[5:16] if self.date_created else "not sent"};'

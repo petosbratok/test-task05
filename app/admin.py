@@ -3,6 +3,9 @@ from django.contrib import admin
 # Register your models here.
 from .models import *
 
-admin.site.register(Mailing)
-admin.site.register(Client)
-admin.site.register(Message)
+class IdAdmin(admin.ModelAdmin):
+    readonly_fields = ('id',)
+
+admin.site.register(Mailing, IdAdmin)
+admin.site.register(Client, IdAdmin)
+admin.site.register(Message, IdAdmin)
