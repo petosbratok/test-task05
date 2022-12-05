@@ -27,6 +27,7 @@ class CreateClientFilter(BaseFilterBackend):
             )
         ]
 
+
 class UpdateClientFilter(BaseFilterBackend):
     def get_schema_fields(self, view):
         return [
@@ -53,6 +54,7 @@ class UpdateClientFilter(BaseFilterBackend):
             )
         ]
 
+
 class DeleteClientFilter(BaseFilterBackend):
     def get_schema_fields(self, view):
         return [
@@ -62,6 +64,7 @@ class DeleteClientFilter(BaseFilterBackend):
                 type='integer'
             ),
         ]
+
 
 class CreateMailingFilter(BaseFilterBackend):
     def get_schema_fields(self, view):
@@ -87,6 +90,7 @@ class CreateMailingFilter(BaseFilterBackend):
                 type='string'
             ),
         ]
+
 
 class UpdateMailingFilter(BaseFilterBackend):
     def get_schema_fields(self, view):
@@ -114,6 +118,7 @@ class UpdateMailingFilter(BaseFilterBackend):
             ),
         ]
 
+
 class DeleteMailingFilter(BaseFilterBackend):
     def get_schema_fields(self, view):
         return [
@@ -123,6 +128,7 @@ class DeleteMailingFilter(BaseFilterBackend):
                 type='integer'
             ),
         ]
+
 
 class MailingDataSingleFilter(BaseFilterBackend):
     def get_schema_fields(self, view):

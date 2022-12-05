@@ -24,16 +24,16 @@ class CreateClientAPI(APIView):
 
         try:
             int(phone)
-        except:
+        except Exception:
             return Response({'Error': 'Phone must be a number'})
 
         if 79999999999 > int(phone) > 70000000000 and phone and operator_code and tag and timezone:
             data = {
-            'phone' : phone,
-            'operator_code' : operator_code,
-            'tag': tag,
-            'timezone': timezone,
-            'info': 'New client have been created'
+                'phone': phone,
+                'operator_code': operator_code,
+                'tag': tag,
+                'timezone': timezone,
+                'info': 'New client have been created'
             }
 
             client = Client(
@@ -49,6 +49,7 @@ class CreateClientAPI(APIView):
             return Response(data)
         return Response({'error': 'Not enought data provided'})
 
+
 class UpdateClientAPI(APIView):
     """
     Пример: http://127.0.0.1:8000/update-client/?id=1&phone=76665554441
@@ -60,7 +61,7 @@ class UpdateClientAPI(APIView):
 
         try:
             client = Client.objects.get(id=request.GET.get('id'))
-        except:
+        except Exception:
             return Response({'Error': 'No client was found with given id'})
 
         phone = request.GET.get('phone')
@@ -71,7 +72,7 @@ class UpdateClientAPI(APIView):
         if phone:
             try:
                 int(phone)
-            except:
+            except Exception:
                 return Response({'Error': 'Phone must be a number'})
             if 79999999999 > int(phone) > 70000000000:
                 client.phone = int(phone)
@@ -93,6 +94,7 @@ class UpdateClientAPI(APIView):
 
         return Response({'Error': 'Client was found but no properties have been changed'})
 
+
 class DeleteClientAPI(APIView):
     """
     Пример: http://127.0.0.1:8000/delete-client/?id=8
@@ -104,7 +106,7 @@ class DeleteClientAPI(APIView):
 
         try:
             client = Client.objects.get(id=id)
-        except:
+        except Exception:
             return Response({'Error': 'No client was found with given id'})
 
         client.delete()
@@ -127,21 +129,23 @@ class CreateMailingAPI(APIView):
             return Response({'error': 'Not enought data provided'})
 
         try:
-            date_start_object = datetime.strptime(date_start, '%Y-%m-%d %H:%M:%S') - timedelta(hours=3)
-        except:
+            date_start_object = datetime.strptime(
+                date_start, '%Y-%m-%d %H:%M:%S') - timedelta(hours=3)
+        except Exception:
             return Response({'error': 'Start date format is incorrect. Try something like this: %Y-%m-%d %H:%M:%S'})
 
         try:
-            date_end_object = datetime.strptime(date_end, '%Y-%m-%d %H:%M:%S') - timedelta(hours=3)
-        except:
+            date_end_object = datetime.strptime(
+                date_end, '%Y-%m-%d %H:%M:%S') - timedelta(hours=3)
+        except Exception:
             return Response({'error': 'Start date format is incorrect. Try something like this: %Y-%m-%d %H:%M:%S'})
 
         data = {
-        'date_start' : date_start,
-        'text' : text,
-        'filter': filter,
-        'date_end': date_end,
-        'info': 'New mailing have been created'
+            'date_start': date_start,
+            'text': text,
+            'filter': filter,
+            'date_end': date_end,
+            'info': 'New mailing have been created'
         }
 
         mailing = Mailing(
@@ -152,7 +156,7 @@ class CreateMailingAPI(APIView):
         )
         mailing.save()
 
-        utc=pytz.UTC
+        utc = pytz.UTC
         date_start_object = date_start_object.replace(tzinfo=utc)
         date_end_object = date_end_object.replace(tzinfo=utc)
 
@@ -170,7 +174,8 @@ class CreateMailingAPI(APIView):
                 soft_time_limit=2
             )
 
-            data['Status'] = 'Sending' if date_start_object < datetime.now().replace(tzinfo=utc) else 'Scheduled'
+            data['Status'] = 'Sending' if date_start_object < datetime.now(
+            ).replace(tzinfo=utc) else 'Scheduled'
         else:
             create_messages_task.apply_async(
                 (mailing.id, 'Expired'),
@@ -180,6 +185,7 @@ class CreateMailingAPI(APIView):
             data['Status'] = 'Expired'
 
         return Response(data)
+
 
 class UpdateMailingAPI(APIView):
     """
@@ -192,7 +198,7 @@ class UpdateMailingAPI(APIView):
 
         try:
             mailing = Mailing.objects.get(id=request.GET.get('id'))
-        except:
+        except Exception:
             return Response({'Error': 'No mailing was found with given id'})
 
         date_start = request.GET.get('date_start')
@@ -203,13 +209,13 @@ class UpdateMailingAPI(APIView):
         try:
             if date_start:
                 datetime.strptime(date_start, '%Y-%m-%d %H:%M:%S')
-        except:
+        except Exception:
             return Response({'error': 'Start date format is incorrect. Try something like this: %Y-%m-%d %H:%M:%S'})
 
         try:
             if date_end:
                 datetime.strptime(date_start, '%Y-%m-%d %H:%M:%S')
-        except:
+        except Exception:
             return Response({'error': 'End date format is incorrect. Try something like this: %Y-%m-%d %H:%M:%S'})
 
         if date_start:
@@ -232,6 +238,7 @@ class UpdateMailingAPI(APIView):
 
         return Response({'Error': 'Mailing was found but no properties have been changed'})
 
+
 class DeleteMailingAPI(APIView):
     """
     Пример: http://127.0.0.1:8000/delete-mailing/?id=85
@@ -244,16 +251,18 @@ class DeleteMailingAPI(APIView):
 
         try:
             mailing = Mailing.objects.get(id=id)
-        except:
+        except Exception:
             return Response({'Error': 'No mailing was found with given id'})
 
         mailing.delete()
         return Response({'Info': f'Mailing with id {id} has been deleted'})
 
+
 class MailingDataOverall(APIView):
     """
     Пример: http://127.0.0.1:8000/mailing-data-overall/
     """
+
     def get(self, request):
         mailings = Mailing.objects.all()
         messages = Message.objects.all()
@@ -274,6 +283,7 @@ class MailingDataOverall(APIView):
 
         return Response(data)
 
+
 class MailingDataSingle(APIView):
     """
     Пример: http://127.0.0.1:8000/mailing-data-single/?id=86
@@ -285,7 +295,7 @@ class MailingDataSingle(APIView):
 
         try:
             mailing = Mailing.objects.get(id=id)
-        except:
+        except Exception:
             return Response({'Error': 'No mailing was found with given id'})
 
         messages = Message.objects.filter(mailing_id=mailing.id)
